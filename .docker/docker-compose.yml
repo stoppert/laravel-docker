@@ -1,0 +1,35 @@
+version: '3'
+services:
+  php:
+    image: example/app:latest
+    build:
+      context: ./runner
+    volumes:
+      - ../:/var/www/html
+      - ~/.cache/docker-composer:/var/www/.composer
+    depends_on:
+      - mysql
+    ports:
+      - "80:80"
+      - "443:443"
+
+  mysql:
+    image: example/mysql:8.0
+    build:
+      context: ./mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "secret"
+      MYSQL_DATABASE: "laravel"
+      MYSQL_USER: "apperror"
+      MYSQL_PASSWORD: "secret"
+    ports:
+      - "3306:3306"
+    volumes:
+        - ../database:/docker-entrypoint-initdb.d
+        - app_database:/var/lib/mysql
+
+volumes:
+  app_database:
+    external: true
+
+# vim: tabstop=2:softtabstop=0:expandtab:shiftwidth=2:smarttab

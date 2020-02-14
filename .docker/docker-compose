@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+pushd "${0%/*}" 1>/dev/null
+
+# Default environment is production
+export APP_ENV=${APP_ENV:-prod}
+
+# MySQL defaults
+export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-secret}
+export MYSQL_DATABASE=${MYSQL_DATABASE:-laravel}
+export MYSQL_USER=${MYSQL_USER:-laravel}
+export MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}
+
+ensure_volume() {
+    if ! docker volume inspect "$1" > /dev/null 2>&1; then
+        docker volume create --name="$1" > /dev/null
+        echo "$1 successfully created"
+    fi
+}
+
+ensure_volume "app_database"
+
+if [ $# -gt 0 ]; then
+    docker-compose "$@"
+else
+    docker-compose ps
+fi
+
+popd 1>/dev/null
